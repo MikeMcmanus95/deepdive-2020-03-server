@@ -30,12 +30,12 @@ router.post('/', async (req, res, next) => {
 router.get('/', async (req, res, next) => {
   try {
     const questions = await Question.findAll({
-      include: ['options']
+      include: ['options'],
       // include: [models.Option] // another way to write this
     });
     res.status(200).json(questions);
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
@@ -54,7 +54,7 @@ router.post('/', async (req, res, next) => {
 
       const newQuestion = await Question.create({
         body,
-        instructions
+        instructions,
       });
 
       if (options) {
@@ -66,40 +66,43 @@ router.post('/', async (req, res, next) => {
             const { imageUrl, isAnswer } = o;
             const newOption = await Option.create({
               body: optionBody,
-              imageUrl
+              imageUrl,
             });
 
             // and associate the question to the current option
             const newAssociation = await QuestionOption.create({
               questionId: newQuestion.id,
               optionId: newOption.id,
-              isAnswer
-            })
+              isAnswer,
+            });
             return { option: newOption, association: newAssociation };
-          }));
-        res.status(200).json({question: newQuestion, options: newOptionsArr});
+          })
+        );
+        res.status(200).json({ question: newQuestion, options: newOptionsArr });
       } else {
-        res.status(200).json({question: newQuestion, options: null}); // **
+        res.status(200).json({ question: newQuestion, options: null }); // **
       }
     } else {
       res.sendStatus(400);
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const question = await Question.findByPk(id);
+    const question = await Question.findByPk(id, {
+      include: ['options'],
+    });
     if (question) {
       res.status(200).json(question);
     } else {
       res.sendStatus(400);
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
@@ -111,14 +114,14 @@ router.put('/:id', async (req, res, next) => {
       const { body, instructions } = req.body;
       const updatedQuestion = await questionToUpdate.update({
         body,
-        instructions
+        instructions,
       });
       res.status(200).json(updatedQuestion);
     } else {
       res.sendStatus(400);
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
@@ -138,7 +141,7 @@ router.delete('/:id', async (req, res, next) => {
       res.sendStatus(400);
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
